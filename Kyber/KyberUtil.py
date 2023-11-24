@@ -6,6 +6,27 @@ KYBER_VARIABLES={
     "n'":9,
     "q":3329
 }
+KYBER512_VARIABLES={
+    "k":2,
+    "n1":3,
+    "n2":2,
+    "(du,dv)":(10,4),
+    "delta":math.pow(2,-139)
+}
+KYBER768_VARIABLES={
+    "k":3,
+    "n1":2,
+    "n2":2,
+    "(du,dv)":(10,4),
+    "delta":math.pow(2,-164)
+}
+KYBER1024_VARIABLES={
+    "k":4,
+    "n1":2,
+    "n2":2,
+    "(du,dv)":(11,5),
+    "delta":math.pow(2,-174)
+}
 def modPLUS(r,a):
     for i in range(a):
         if i==r%a:
@@ -33,20 +54,36 @@ def Parse(B:bytearray):
         i+=3
     return a_coefficients
 
-def CBD(B:bytearray):
+def CBD(B:bytearray,ETA):
     #alorithm 2
-    #input byte array of length 64n
+    #input byte array of length 64ETA
     #output f polynomial in Rq
     bits=BytesToBits(B)
-    f_polynomial=[0 for i in range(256)]
-    for i in range(256):
+    f_polynomial=[0 for i in range(KYBER_VARIABLES.get("n"))]
+    for i in range(KYBER_VARIABLES.get("n")):
         sum_a=0
         sum_b=0
-        for j in range(KYBER_VARIABLES.get("n")):
-            sum_a+=bits[2*i*KYBER_VARIABLES.get("n")]+j
-            sum_b+=bits[2*i*KYBER_VARIABLES.get("n")]+KYBER_VARIABLES.get("n")+j
+        for j in range(ETA):
+            sum_a+=bits[2*i*ETA]+j
+            sum_b+=bits[2*i*ETA]+ETA+j
         f_polynomial[i]=sum_a-sum_b
     return f_polynomial
+
+def Decode(B:bytearray,L):
+    #algorithm 3
+    #input byte array of length 32L
+    #output f polynomial in Rq
+    bits=BytesToBits(B)
+    f_polynomial=[0 for i in range(KYBER_VARIABLES.get("n"))]
+    for i in range(KYBER_VARIABLES.get("n")):
+        f_sum=0
+        for j in range(L):
+            f_sum+=bits[(i*L)+math.pow(j,2*j)]
+        f_polynomial[i]=f_sum
+    return f_polynomial
+
+
+
 
 
 

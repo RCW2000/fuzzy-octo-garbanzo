@@ -1,4 +1,5 @@
 import math
+from hashlib import shake_128, sha3_256, sha3_512, shake_256
 #based on october spec doc
 #algorithm 1 parse B* ->Rnq
 KYBER_VARIABLES={
@@ -6,6 +7,29 @@ KYBER_VARIABLES={
     "n'":9,
     "q":3329
 }
+def Compress(q,x,d):
+    rounded=int(round(((math.pow(2,d)/q)*x),-1))
+    return modPLUS(rounded,math.pow(2,d))
+def Decompress(q,x,d):
+    return int(round((q/math.pow(2,d))*x),-1)
+def XOF(B_star,B1,B2,length):
+    input_B=B_star+B1+B2
+    return shake_128(input_B).digest(length)
+
+def PRF(s,b,length):
+    B=s+b
+    return shake_256(B).digest(length)
+
+def H(B):
+    return sha3_256(B).digest()
+
+def G(B):
+    out=sha3_512(B).digest()
+    return out[32:],out[:32]
+
+def KDF(B,length):
+    return shake_256(B).digest(length)
+
 KYBER512_VARIABLES={
     "k":2,
     "n1":3,
@@ -82,6 +106,25 @@ def Decode(B:bytearray,L):
         f_polynomial[i]=f_sum
     return f_polynomial
 
+def KYBER_CPAPKE_KeyGen(k,n1):
+    #algorithm 4
+    #outputs public and secret key
+    d=bytearray(32)
+    (rho,sigma)=G(d)
+    N=0
+    A_matrix=[[j for j in range(k)] for i in range(k)]
+    for i in range(k):
+        for j in range(k):
+            A_matrix[i][j]=Parse(XOF(rho,bytes([j]),bytes([i]),3*KYBER_VARIABLES.get("n")))
+    s=[i for i in range(k)]
+    for i in range(k):
+        s[i]=CBD(PRF(sigma,bytes([N]),len(sigma)+len(N)),n1)
+        N+=1
+    e=[i for i in range(k)]
+    for i in range(k):
+        e[i]=CBD(PRF(sigma,bytes([N]),len(sigma)+len(N)),n1)
+        N+=1
+    
 
 
 

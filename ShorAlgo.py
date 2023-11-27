@@ -98,10 +98,10 @@ def FactorLargePrime(N:int)->(int,int):
     attempt=0
     #base cases not covered by order finding
     if N%2==0 and util.isPimePow(N)==False:
-        return (N/2,2)
+        return (N/2,2,0)
     elif util.isPimePow(N)!=False:
         ispow,prime=util.isPimePow(N)
-        return (prime,N/prime)
+        return (prime,N/prime,0)
     else:
         while(True):
             attempt=attempt+1
@@ -110,7 +110,7 @@ def FactorLargePrime(N:int)->(int,int):
             a = random.randint(2, N-1)
             d,f,g=util.gcd(a,N)
             if d>1:
-                return (d,N/d)
+                return (d,N/d,0)
             r = find_period(eng, N, a,True)
             print(r)
             if r % 2 != 0:
@@ -121,7 +121,7 @@ def FactorLargePrime(N:int)->(int,int):
                 if (not f1 * f2 == N) and f1 * f2 > 1 and int(1.0 * N / (f1 * f2)) * f1 * f2 == N:
                     f1, f2 = f1 * f2, int(N / (f1 * f2))
                 if f1 * f2 == N and f1 > 1 and f2 > 1:
-                    return (f1,f2)
+                    return (f1,f2,attempt)
                         
             
 

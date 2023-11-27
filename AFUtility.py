@@ -1,9 +1,7 @@
 import random
 import math
-from qiskit import extensions, quantum_info
 import numpy as np
-from qiskit import QuantumCircuit, Aer, transpile, QuantumRegister
-from qiskit.visualization import plot_histogram
+
 
 def isPrime(num:int)->bool:
     if(num<1 or num==1):
